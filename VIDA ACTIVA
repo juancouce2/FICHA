@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Identidad Activa 4º ESO</title>
+  <style>
+    body { font-family: system-ui, Arial; margin: 0; background:#f6f7fb; }
+    .wrap { max-width: 720px; margin: 0 auto; padding: 18px; }
+    .card { background: white; border-radius: 16px; padding: 16px; box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+    h1 { margin: 0 0 6px; font-size: 22px; }
+    p { margin: 0 0 14px; color: #444; }
+    label { display:block; margin-top: 10px; font-weight: 600; }
+    input, select, textarea { width: 100%; padding: 10px; border: 1px solid #d7dbe7; border-radius: 10px; margin-top: 6px; font-size: 16px; }
+    textarea { min-height: 70px; resize: vertical; }
+    .row { display:flex; gap: 10px; }
+    .row > div { flex:1; }
+    .btn { margin-top: 14px; width:100%; padding: 12px; border:0; border-radius: 12px; background:#1f4fff; color:white; font-weight:700; font-size: 16px; cursor:pointer; }
+    .btn:disabled { opacity:.6; cursor:not-allowed; }
+    .msg { margin-top: 12px; padding: 10px; border-radius: 12px; display:none; }
+    .ok { background:#e9fbef; color:#14532d; border:1px solid #b7f0c6; }
+    .bad { background:#fff0f0; color:#7f1d1d; border:1px solid #ffcccc; }
+    .mini { font-size: 13px; color:#666; margin-top:8px;}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Identidad Activa · 4º ESO</h1>
+      <p>Registro del reto vinculado a tu UD. Tardas menos que en abrir TikTok (y te aporta más).</p>
+
+      <form id="f">
+        <label>Nombre y apellidos</label>
+        <input id="nombre" required placeholder="Ej: Juan Pérez García" />
+
+        <div class="row">
+          <div>
+            <label>Grupo</label>
+            <select id="grupo" required>
+              <option value="">Selecciona</option>
+              <option>4ºA</option>
+              <option>4ºB</option>
+              <option>4ºC</option>
+            </select>
+          </div>
+          <div>
+            <label>Unidad Didáctica</label>
+            <select id="ud" required>
+              <option value="">Selecciona</option>
+              <option>UD1 – Calentamiento y salud</option>
+              <option>UD2 – Colpbol y salud social</option>
+              <option>UD3 – Resistencia y relajación</option>
+              <option>UD4 – Balonmano y salud mental</option>
+              <option>UD5 – Fuerza, ergonomía y mitos</option>
+              <option>UD6 – Lucha y prevención</option>
+              <option>UD7 – Baloncesto</option>
+              <option>UD8 – Zumba</option>
+              <option>UD9 – Orientación y senderismo</option>
+              <option>UD10 – Organización de campeonatos</option>
+              <option>UD11 – Fútbol Gaélico y sociedad</option>
+              <option>UD12 – Coreografías</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label>¿Reto base completado?</label>
+            <select id="base" required>
+              <option value="">Selecciona</option>
+              <option value="SI">Sí</option>
+              <option value="NO">No</option>
+            </select>
+          </div>
+          <div>
+            <label>Reto opcional</label>
+            <select id="opcional" required>
+              <option value="NINGUNO">Ninguno</option>
+              <option value="A">Opción A</option>
+              <option value="B">Opción B</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Evidencia (enlace)</label>
+        <input id="evidencia" required placeholder="Pega aquí el enlace (Drive/OneDrive)"/>
+
+        <div class="row">
+          <div>
+            <label>Esfuerzo (1–5)</label>
+            <select id="esfuerzo" required>
+              <option value="">Selecciona</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+          </div>
+          <div>
+            <label>Energía después (1–5)</label>
+            <select id="energia" required>
+              <option value="">Selecciona</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            </select>
+          </div>
+        </div>
+
+        <label>Reflexión (mín. 40 caracteres)</label>
+        <textarea id="reflexion" required placeholder="Ej: Hoy me ha costado empezar, pero luego he notado más energía..."></textarea>
+
+        <button class="btn" id="btn" type="submit">ENVIAR</button>
+        <div class="mini">Consejo: en Drive, comparte el enlace como “cualquiera con el enlace puede ver”. Sin eso, yo no puedo validar evidencia.</div>
+
+        <div id="msg" class="msg"></div>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
+const ENDPOINT = https://script.google.com/macros/s/AKfycbzS8ZK5HuI8g-1AkhRp9fqnlDP3i9-J6OP9Cr79WUs2j4pOPYwVXy2CZMtCP3g-IgjW/exec; 
+
+const f = document.getElementById("f");
+const btn = document.getElementById("btn");
+const msg = document.getElementById("msg");
+
+function showMessage(text, ok=true){
+  msg.style.display = "block";
+  msg.className = "msg " + (ok ? "ok" : "bad");
+  msg.textContent = text;
+}
+
+f.addEventListener("submit", async (ev) => {
+  ev.preventDefault();
+
+  const payload = {
+    nombre: document.getElementById("nombre").value.trim(),
+    grupo: document.getElementById("grupo").value,
+    ud: document.getElementById("ud").value,
+    reto_base: document.getElementById("base").value,
+    reto_opcional: document.getElementById("opcional").value,
+    evidencia_url: document.getElementById("evidencia").value.trim(),
+    esfuerzo: document.getElementById("esfuerzo").value,
+    energia: document.getElementById("energia").value,
+    reflexion: document.getElementById("reflexion").value.trim(),
+  };
+
+  if (payload.reflexion.length < 40) {
+    showMessage("La reflexión es muy corta. Mínimo 40 caracteres.", false);
+    return;
+  }
+
+  btn.disabled = true;
+  showMessage("Enviando…");
+
+  try {
+    const res = await fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    if (data.ok) {
+      showMessage(`✅ Registrado. Puntuación provisional: ${(data.puntuacion).toFixed(2)} / 1.00`);
+      f.reset();
+    } else {
+      showMessage("❌ Error guardando. " + (data.error || "Inténtalo de nuevo."), false);
+    }
+  } catch (e) {
+    showMessage("❌ No se pudo conectar. Revisa la URL del endpoint.", false);
+  } finally {
+    btn.disabled = false;
+  }
+});
